@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BMIHistoryScreen extends StatelessWidget {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  BMIHistoryScreen({super.key});
 
   Future<List<Map<String, dynamic>>> _fetchBMIResults() async {
     User? user = _auth.currentUser;
@@ -20,15 +23,14 @@ class BMIHistoryScreen extends StatelessWidget {
           .orderBy('timestamp', descending: true)
           .get();
 
-      if (snapshot.docs.isEmpty) {
-        print("No BMI results found for user: ${user.uid}");
-        return [];
-      }
-
-      print("Fetched ${snapshot.docs.length} BMI results");
       return snapshot.docs.map((doc) {
-        print("Document data: ${doc.data()}");
-        return doc.data();
+        final data = doc.data();
+        return {
+          'id': doc.id, // Needed for deletion
+          'bmi': (data['bmi'] as num?)?.toDouble() ?? 0.0,
+          'result': data['result'] ?? '',
+          'timestamp': (data['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now(),
+        };
       }).toList();
     } catch (e) {
       print("Error fetching BMI results: $e");
@@ -36,41 +38,77 @@ class BMIHistoryScreen extends StatelessWidget {
     }
   }
 
+  void _confirmAndDelete(BuildContext context, String docId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.confirmDeleteTitle),
+        content: Text(AppLocalizations.of(context)!.confirmDeleteMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await _firestore.collection('bmiResults').doc(docId).delete();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(AppLocalizations.of(context)!.deletedSuccessfully)),
+              );
+            },
+            child: Text(AppLocalizations.of(context)!.someLocalizedString, style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final local = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("BMI History"),
+        title: Text(local.bmiHistoryTitle),
         backgroundColor: Colors.green,
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
+      body: FutureBuilder<List<Map<String, dynamic>>>( 
         future: _fetchBMIResults(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (snapshot.hasError) {
-            print("FutureBuilder error: ${snapshot.error}");
-            return Center(child: Text("Error loading data"));
+            return Center(child: Text(local.errorLoadingData));
           }
 
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text("No BMI results found"));
-          }
+          final bmiResults = snapshot.data ?? [];
 
-          var bmiResults = snapshot.data!;
+          if (bmiResults.isEmpty) {
+            return Center(child: Text(local.noHistoryMessage));
+          }
 
           return ListView.builder(
             itemCount: bmiResults.length,
             itemBuilder: (context, index) {
-              var data = bmiResults[index];
+              final result = bmiResults[index];
               return ListTile(
-                title: Text("BMI: ${data['bmi'].toStringAsFixed(2)}"),
-                subtitle: Text("Result: ${data['result']}"),
-                trailing: Text(
-                  "${data['timestamp'].toDate()}",
-                  style: TextStyle(fontSize: 12),
+                title: Text("${local.bmiLabel}: ${result['bmi'].toStringAsFixed(2)}"),
+                subtitle: Text("${local.resultLabel}: ${result['result']}"),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      result['timestamp'].toString(),
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.delete, color: Colors.red),
+                      onPressed: () => _confirmAndDelete(context, result['id']),
+                    ),
+                  ],
                 ),
               );
             },

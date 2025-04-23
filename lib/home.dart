@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:go_router/go_router.dart'; // Import GoRouter
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'bmi_calculator.dart';
-import 'bmi_history.dart';
+import 'language_provider.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -14,24 +16,34 @@ class _HomeState extends State<Home> {
   final TextEditingController controlWeight = TextEditingController();
   final TextEditingController controlHeight = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  String _info = "Report your data";
+  String _info = "";
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        _info = AppLocalizations.of(context)!.reportData;
+      });
+    });
+  }
 
   void _resetFields() {
     controlHeight.text = "";
     controlWeight.text = "";
     setState(() {
-      _info = "Report your data";
+      _info = AppLocalizations.of(context)!.reportData;
     });
   }
 
-  Future <void> _calculate() async {
+  Future<void> _calculate() async {
     if (_formKey.currentState!.validate()) {
       double weight = double.parse(controlWeight.text);
       double height = double.parse(controlHeight.text) / 100;
       double imc = BMICalculator.calculateBMI(weight, height);
-      String result = BMICalculator.getBMIResult(imc);
+      String result = BMICalculator.getBMIResult(imc); // Pass context for translations
 
       setState(() {
         _info = result;
@@ -52,12 +64,11 @@ class _HomeState extends State<Home> {
 
   void _signOut() async {
     try {
-      await _auth.signOut(); // Sign out the user
+      await _auth.signOut();
       print("User signed out successfully");
 
-      // Navigate to the sign-in screen after logout
       if (mounted) {
-        context.pushReplacement('/sign-in'); // Use GoRouter to navigate
+        context.pushReplacement('/sign-in');
       }
     } catch (e) {
       print("Error signing out: $e");
@@ -67,11 +78,12 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     User? user = _auth.currentUser;
+    final localizations = AppLocalizations.of(context)!;
+    final languageProvider = Provider.of<LanguageProvider>(context);
 
     if (user == null) {
-      // Redirect to the sign-in screen if the user is not logged in
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        context.pushReplacement('/sign-in'); // Use GoRouter's pushReplacement
+        context.pushReplacement('/sign-in');
       });
       return Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -81,15 +93,21 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "BMI CALCULATOR",
-          style: TextStyle(fontFamily: "Segoe UI"),
+          localizations.appTitle,
+          style: TextStyle(fontFamily: "Segoe UI", fontSize: 24),
         ),
         centerTitle: true,
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.teal,
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),
             onPressed: _resetFields,
+          ),
+          IconButton(
+            icon: Icon(Icons.language),
+            onPressed: () {
+              _showLanguageDialog(context, languageProvider);
+            },
           ),
           IconButton(
             icon: Icon(Icons.logout),
@@ -97,9 +115,9 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[200],
       body: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+        padding: EdgeInsets.symmetric(horizontal: 16.0),
         child: Form(
           key: _formKey,
           child: Column(
@@ -108,54 +126,13 @@ class _HomeState extends State<Home> {
               Icon(
                 Icons.person,
                 size: 120.0,
-                color: Colors.green,
+                color: Colors.teal,
               ),
-              TextFormField(
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(
-                  labelText: "Weight (Kg)",
-                  labelStyle: TextStyle(
-                    color: Colors.green,
-                    fontFamily: "Segoe UI",
-                  ),
-                ),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.green,
-                  fontSize: 25.0,
-                  fontFamily: "Segoe UI",
-                ),
-                controller: controlWeight,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Insert your weight!";
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: "Height (cm)",
-                  labelStyle: TextStyle(
-                    color: Colors.green,
-                    fontFamily: "Segoe UI",
-                  ),
-                ),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.green,
-                  fontSize: 25.0,
-                  fontFamily: "Segoe UI",
-                ),
-                controller: controlHeight,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Insert your height!";
-                  }
-                  return null;
-                },
-              ),
+              SizedBox(height: 20),
+              _buildTextField(localizations.weight, controlWeight, "weight"),
+              SizedBox(height: 20),
+              _buildTextField(localizations.height, controlHeight, "height"),
+              SizedBox(height: 20),
               Padding(
                 padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
                 child: SizedBox(
@@ -163,42 +140,104 @@ class _HomeState extends State<Home> {
                   child: ElevatedButton(
                     onPressed: _calculate,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: Colors.teal,
                       textStyle: TextStyle(
-                        fontSize: 25.0,
+                        fontSize: 20.0,
                         fontFamily: "Segoe UI",
                       ),
                     ),
                     child: Text(
-                      "Calculate",
+                      localizations.calculate,
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
                 ),
               ),
+              SizedBox(height: 20),
               Text(
                 _info,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.green,
+                  color: Colors.teal,
                   fontSize: 25.0,
                   fontFamily: "Segoe UI",
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.only(top: 10.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    context.push('/history'); // Use GoRouter's push
-                  },
-                  child: Text("View History"),
-                ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  context.push('/history');
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+                child: Text(localizations.viewHistory),
               ),
-
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField(String label, TextEditingController controller, String field) {
+    return TextFormField(
+      keyboardType: TextInputType.numberWithOptions(decimal: true),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(
+          color: Colors.teal,
+          fontFamily: "Segoe UI",
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+      ),
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        color: Colors.teal,
+        fontSize: 25.0,
+        fontFamily: "Segoe UI",
+      ),
+      controller: controller,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return field == "weight" ? AppLocalizations.of(context)!.insertWeight : AppLocalizations.of(context)!.insertHeight;
+        }
+        return null;
+      },
+    );
+  }
+
+  void _showLanguageDialog(BuildContext context, LanguageProvider languageProvider) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(AppLocalizations.of(context)!.language),
+          content: Container(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: languageProvider.languages.length,
+              itemBuilder: (context, index) {
+                final language = languageProvider.languages[index];
+                return ListTile(
+                  title: Text(language['name']),
+                  onTap: () {
+                    languageProvider.setLocale(language['locale']);
+                    Navigator.pop(context);
+                    setState(() {
+                      _info = AppLocalizations.of(context)!.reportData;
+                    });
+                  },
+                  trailing: languageProvider.locale.languageCode == language['locale'].languageCode
+                      ? Icon(Icons.check, color: Colors.teal)
+                      : null,
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }

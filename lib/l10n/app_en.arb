@@ -1,0 +1,40 @@
+{
+    "@@locale": "en",
+    "appTitle": "BMI CALCULATOR",
+    "weight": "Weight (Kg)",
+    "height": "Height (cm)",
+    "calculate": "Calculate",
+    "reportData": "Report your data",
+    "insertWeight": "Insert your weight!",
+    "insertHeight": "Insert your height!",
+    "viewHistory": "View History",
+    "language": "Language",
+    "underweightSevere": "Severely Underweight",
+    "underweightModerate": "Moderately Underweight",
+    "underweightMild": "Mildly Underweight",
+    "normal": "Normal",
+    "overweight": "Overweight",
+    "obeseI": "Obese Class I",
+    "obeseII": "Obese Class II",
+    "obeseIII": "Obese Class III",
+    "bmiHistoryTitle": "BMI History",
+    "noHistoryMessage": "No BMI results found.",
+    "errorLoadingData": "Error loading data.",
+    "bmiLabel": "BMI",
+    "resultLabel": "Result",
+    "signInTitle": "Connectez-vous à votre compte",
+    "resetPasswordTitle": "Réinitialisez votre mot de passe",
+    "confirmDeleteTitle": "Confirm Delete",
+    "confirmDeleteMessage": "Are you sure you want to delete this entry?",
+    "yes": "Yes",
+    "no": "No",
+    "cancel": "Cancel",
+    "deletedSuccessfully": "Deleted successfully",
+    "greeting": "Hello",
+    "error": "An error occurred",
+    "someLocalizedString": "Delete"
+    
+
+
+
+}

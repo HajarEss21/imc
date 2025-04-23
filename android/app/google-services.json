@@ -1,32 +1,13 @@
 {
   "project_info": {
-    "project_number": "293392169137",
-    "project_id": "imc-d-94fa0",
-    "storage_bucket": "imc-d-94fa0.firebasestorage.app"
+    "project_number": "589381681563",
+    "project_id": "imc1-c17b1",
+    "storage_bucket": "imc1-c17b1.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:293392169137:android:ec92b659350ede8233ca90",
-        "android_client_info": {
-          "package_name": "com.example.imc_secured"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCK1LsbG_lRZJON9LjFsrz2FnuM3Swym0E"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:293392169137:android:527cbbc299ccf7d433ca90",
+        "mobilesdk_app_id": "1:589381681563:android:fc29c131ec66c4f60de13e",
         "android_client_info": {
           "package_name": "com.example.imc_with_backend"
         }
@@ -34,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCK1LsbG_lRZJON9LjFsrz2FnuM3Swym0E"
+          "current_key": "AIzaSyB8hhH6H9Ei39nKmzSpgxkSeVri2c1sS0Q"
         }
       ],
       "services": {

@@ -1,0 +1,41 @@
+{
+    "@@locale": "fr",
+    "appTitle": "CALCULATEUR IMC",
+    "weight": "Poids (Kg)",
+    "height": "Taille (cm)",
+    "calculate": "Calculer",
+    "reportData": "Renseignez vos données",
+    "insertWeight": "Insérez votre poids!",
+    "insertHeight": "Insérez votre taille!",
+    "viewHistory": "Voir l'historique",
+    "language": "Langue",
+    "underweightSevere": "Insuffisance pondérale sévère",
+    "underweightModerate": "Insuffisance pondérale modérée",
+    "underweightMild": "Insuffisance pondérale légère",
+    "normal": "Normal",
+    "overweight": "Surpoids",
+    "obeseI": "Obésité classe I",
+    "obeseII": "Obésité classe II",
+    "obeseIII": "Obésité classe III",
+    "bmiHistoryTitle": "Historique IMC",
+    "noHistoryMessage": "Aucun résultat IMC trouvé.",
+    "errorLoadingData": "Erreur lors du chargement des données.",
+    "bmiLabel": "IMC",
+    "resultLabel": "Résultat",
+    "signInTitle": "Connectez-vous à votre compte",
+    "resetPasswordTitle": "Réinitialisez votre mot de passe",
+    "confirmDeleteTitle": "Confirmer la suppression",
+    "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer cette entrée ?",
+    "yes": "Oui",
+    "no": "Non",
+    "cancel": "Annuler",
+    "deletedSuccessfully": "Supprimé avec succès",
+     "greeting": "Bonjour",
+    "error": "Une erreur est survenue",
+    "someLocalizedString": "Supprimer"
+    
+    
+    
+    
+    
+  }
